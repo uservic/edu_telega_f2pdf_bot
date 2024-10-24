@@ -33,12 +33,12 @@ def get_handlers(tb: TelegramBot):
                     MessageHandler(filters.TEXT & ~filters.COMMAND, tb.store_output_file_name)
                 ],
                 UPLOAD_PHOTO: [
-                    MessageHandler(filters.PHOTO, tb.upload_photo),
+                    MessageHandler(filters.ALL, tb.upload_photo),
                     CommandHandler("exit", tb.exit)
                 ],
                 PHOTO_ADDED: [
-                    MessageHandler(filters.PHOTO, tb.upload_photo),
                     CommandHandler("f", tb.process_on_finish_upload),
+                    MessageHandler(filters.ALL, tb.upload_photo),
                     CommandHandler("exit", tb.exit)
                 ],
                 MAIL: [

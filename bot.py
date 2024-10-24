@@ -44,7 +44,11 @@ class TelegramBot:
 
     async def upload_photo(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         u_id = update.message.from_user.id
-        photo = update.message.photo[-1]
+        photo = None
+        if update.message.photo:
+            photo = update.message.photo[-1]
+        else:
+            photo = update.message.document
 
         self.user_ids_to_file_ids[u_id].append(photo.file_id)
 
@@ -63,7 +67,7 @@ class TelegramBot:
             as_bytearray = await file.download_as_bytearray()
             image_byte_list.append(as_bytearray)
 
-        bytes_obj_result = self.__class__.convert(image_byte_list, update)
+        bytes_obj_result = await self.__class__.convert(image_byte_list, update)
 
         context.user_data['pdf_result'] = bytes_obj_result
 
@@ -98,14 +102,14 @@ class TelegramBot:
         return ConversationHandler.END
 
     @staticmethod
-    def convert(img_bytes: list, update: Update):
+    async def convert(img_bytes: list, update: Update):
         res = None
         try:
             conv = PDFConverter()
             res = conv.convert_images(img_bytes)
         except Exception as ex:
             logger.error("Error while converting images to pdf", exc_info=ex)
-            update.message.reply_text("Error while converting images to pdf.")
+            await update.message.reply_text("Error while converting images to pdf.")
 
         return res
 
